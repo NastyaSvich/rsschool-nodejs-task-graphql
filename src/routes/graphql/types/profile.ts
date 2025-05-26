@@ -13,8 +13,8 @@ export const ProfileResponse = new GraphQLObjectType({
     memberTypeId: { type: new GraphQLNonNull(MemberTypeIdEnum) },
     memberType: {
       type: MemberType,
-      resolve: (parent: IProfile, _, { prisma }: GraphQLContext) => {
-       return prisma.memberType.findUnique({ where: { id: parent.memberTypeId } });
+      resolve: (parent: IProfile, _, { loader }: GraphQLContext) => {
+        return loader.memberType.load(parent.memberTypeId);
       },
     }
   },

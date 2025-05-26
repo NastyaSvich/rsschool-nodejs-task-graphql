@@ -1,7 +1,7 @@
 import {
   GraphQLList,
   GraphQLNonNull,
-  GraphQLObjectType,
+  GraphQLObjectType, GraphQLResolveInfo,
 } from 'graphql';
 import { MemberType, MemberTypeIdEnum } from './types/memberType.js';
 import { GraphQLContext } from './types/graphQLContext.js';
@@ -9,6 +9,7 @@ import { UUIDType } from './types/uuid.js';
 import { PostResponse } from './types/post.js';
 import { ProfileResponse } from './types/profile.js';
 import { UserResponse } from './types/user.js';
+import { FieldsByTypeName, parseResolveInfo } from 'graphql-parse-resolve-info';
 
 export const Query = new GraphQLObjectType({
   name: 'Query',
@@ -17,7 +18,7 @@ export const Query = new GraphQLObjectType({
       type: new GraphQLList(MemberType),
       resolve: (_: unknown, __: unknown, { prisma }: GraphQLContext) => {
         return prisma.memberType.findMany();
-      },
+      }
     },
     memberType: {
       type: MemberType,
@@ -63,8 +64,16 @@ export const Query = new GraphQLObjectType({
 
     users: {
       type: new GraphQLList(UserResponse),
-      resolve: (_, __, { prisma }: GraphQLContext) => {
-        return prisma.user.findMany();
+      resolve: (_, __, { prisma }: GraphQLContext, info: GraphQLResolveInfo) => {
+        const parsedInfo = parseResolveInfo(info);
+        const fields = parsedInfo?.fieldsByTypeName.User as FieldsByTypeName['User'];
+
+        const include = {
+          subscribedToUser: !!fields.subscribedToUser,
+          userSubscribedTo: !!fields.userSubscribedTo
+        };
+
+        return prisma.user.findMany({ include });
       }
     },
     user: {

@@ -8,49 +8,33 @@ import { IPost, PostResponse } from './post.js';
 export const UserResponse = new GraphQLObjectType<IUserBase, GraphQLContext>({
   name: 'User',
   fields: () => ({
-    id: { type: new GraphQLNonNull(UUIDType) },
+    id: { type: UUIDType },
     name: { type: new GraphQLNonNull(GraphQLString) },
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     posts: {
       type: new GraphQLList(PostResponse),
-      resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
-        return prisma.post.findMany({ where: { authorId: parent.id } });
+      resolve: (parent: IUserBase, _, { loader }: GraphQLContext) => {
+        return loader.post.load(parent.id);
       },
     },
     profile: {
       type: ProfileResponse,
-      resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
-        return prisma.profile.findUnique({ where: { userId: parent.id } });
+      resolve: (parent: IUserBase, _, { loader }: GraphQLContext) => {
+        return loader.profile.load(parent.id);
       }
     },
     subscribedToUser: {
       type: new GraphQLList(UserResponse),
-      resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
-        return prisma.user.findMany({
-          where: {
-            userSubscribedTo: {
-              some: {
-                authorId: parent.id,
-              },
-            },
-          },
-        });
+      resolve: (parent: IUserBase, _, { loader }: GraphQLContext) => {
+        return parent.subscribedToUser ?? loader.subscribedToUser.load(parent.id);
       }
     },
     userSubscribedTo: {
       type: new GraphQLList(UserResponse),
-      resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
-        return prisma.user.findMany({
-          where: {
-            subscribedToUser: {
-              some: {
-                subscriberId: parent.id,
-              },
-            },
-          },
-        });
-      },
-    }
+      resolve: (parent: IUserBase, _, { loader }: GraphQLContext) => {
+        return parent.userSubscribedTo ?? loader.userSubscribedTo.load(parent.id);
+      }
+    },
   })
 }) as unknown as GraphQLObjectType<IUserBase>;
 
