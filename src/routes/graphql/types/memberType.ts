@@ -16,3 +16,14 @@ export const MemberType = new GraphQLObjectType({
     postsLimitPerMonth: { type: new GraphQLNonNull(GraphQLInt) },
   },
 });
+
+export enum MemberTypeIdEnumTS {
+  BASIC = 'BASIC',
+  BUSINESS = 'BUSINESS',
+}
+
+export interface IMemberType {
+  id: MemberTypeIdEnumTS;
+  discount: number;
+  postsLimitPerMonth: number;
+}

@@ -19,3 +19,9 @@ export const PostResponse = new GraphQLObjectType({
     authorId: { type: new GraphQLNonNull(UUIDType) },
   },
 });
+
+export interface IPost {
+  id: string;
+  title: string;
+  content: string;
+}
