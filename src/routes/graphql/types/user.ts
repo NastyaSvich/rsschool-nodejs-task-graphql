@@ -1,11 +1,11 @@
 import { GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
 import { UUIDType } from './uuid.js';
-import { GraphQLFloat } from 'graphql/index.js';
-import { Profile, IProfile } from './profile.js';
+import { GraphQLFloat, GraphQLInputObjectType } from 'graphql/index.js';
+import { ProfileResponse, IProfile } from './profile.js';
 import { GraphQLContext } from './graphQLContext.js';
 import { IPost, PostResponse } from './post.js';
 
-export const User = new GraphQLObjectType<IUserBase, GraphQLContext>({
+export const UserResponse = new GraphQLObjectType<IUserBase, GraphQLContext>({
   name: 'User',
   fields: () => ({
     id: { type: new GraphQLNonNull(UUIDType) },
@@ -18,13 +18,13 @@ export const User = new GraphQLObjectType<IUserBase, GraphQLContext>({
       },
     },
     profile: {
-      type: Profile,
+      type: ProfileResponse,
       resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
         return prisma.profile.findUnique({ where: { userId: parent.id } });
       }
     },
     subscribedToUser: {
-      type: new GraphQLList(User),
+      type: new GraphQLList(UserResponse),
       resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
         return prisma.user.findMany({
           where: {
@@ -38,7 +38,7 @@ export const User = new GraphQLObjectType<IUserBase, GraphQLContext>({
       }
     },
     userSubscribedTo: {
-      type: new GraphQLList(User),
+      type: new GraphQLList(UserResponse),
       resolve: (parent: IUserParent, _, { prisma }: GraphQLContext) => {
         return prisma.user.findMany({
           where: {
@@ -53,6 +53,22 @@ export const User = new GraphQLObjectType<IUserBase, GraphQLContext>({
     }
   })
 }) as unknown as GraphQLObjectType<IUserBase>;
+
+export const CreateUserInput = new GraphQLInputObjectType({
+  name: 'CreateUserInput',
+  fields: {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
+  },
+});
+
+export const ChangeUserInput = new GraphQLInputObjectType({
+  name: 'ChangeUserInput',
+  fields: {
+    name: { type: GraphQLString },
+    balance: { type: GraphQLFloat },
+  },
+});
 
 export interface IUserParent {
   id: string;

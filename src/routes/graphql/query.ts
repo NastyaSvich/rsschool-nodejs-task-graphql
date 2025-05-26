@@ -7,8 +7,8 @@ import { MemberType, MemberTypeIdEnum } from './types/memberType.js';
 import { GraphQLContext } from './types/graphQLContext.js';
 import { UUIDType } from './types/uuid.js';
 import { PostResponse } from './types/post.js';
-import { Profile } from './types/profile.js';
-import { User } from './types/user.js';
+import { ProfileResponse } from './types/profile.js';
+import { UserResponse } from './types/user.js';
 
 export const Query = new GraphQLObjectType({
   name: 'Query',
@@ -46,13 +46,13 @@ export const Query = new GraphQLObjectType({
     },
 
     profiles: {
-      type: new GraphQLList(Profile),
+      type: new GraphQLList(ProfileResponse),
       resolve: (_, __, { prisma }: GraphQLContext) => {
         return prisma.profile.findMany();
       }
     },
     profile: {
-      type: Profile,
+      type: ProfileResponse,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
@@ -62,13 +62,13 @@ export const Query = new GraphQLObjectType({
     },
 
     users: {
-      type: new GraphQLList(User),
+      type: new GraphQLList(UserResponse),
       resolve: (_, __, { prisma }: GraphQLContext) => {
         return prisma.user.findMany();
       }
     },
     user: {
-      type: User,
+      type: UserResponse,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },

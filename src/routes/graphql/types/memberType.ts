@@ -4,7 +4,7 @@ export const MemberTypeIdEnum = new GraphQLEnumType({
   name: 'MemberTypeId',
   values: {
     BASIC: { value: 'BASIC' },
-    PREMIUM: { value: 'BUSINESS' },
+    BUSINESS: { value: 'BUSINESS' },
   },
 });
 
